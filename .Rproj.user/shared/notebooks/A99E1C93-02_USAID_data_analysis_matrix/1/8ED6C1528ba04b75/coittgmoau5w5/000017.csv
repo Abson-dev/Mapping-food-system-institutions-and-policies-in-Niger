@@ -1,5 +1,0 @@
-"0","library(tidyr)"
-"0",""
-"0",""
-"0","df=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis, q_iii_10_2,institutions) %>%"
-"0","  pivot_wider(names_from = organis, values_from = institutions)"

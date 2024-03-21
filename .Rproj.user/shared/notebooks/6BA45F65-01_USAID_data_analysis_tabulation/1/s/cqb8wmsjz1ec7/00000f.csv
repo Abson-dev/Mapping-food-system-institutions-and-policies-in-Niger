@@ -1,5 +1,0 @@
-"0","df_tmp<-EVALUATION_DES_CAPACITES_Hema %>%"
-"0","  group_by(region) %>%"
-"0","  summarise_at(vars(""dom_1"",""dom_2"",""dom_3"",""dom_4"",""dom_5""), list(name = mean))"
-"2","Error: names not found: 'dom_1', 'dom_2', 'dom_3', 'dom_4', 'dom_5'
-"

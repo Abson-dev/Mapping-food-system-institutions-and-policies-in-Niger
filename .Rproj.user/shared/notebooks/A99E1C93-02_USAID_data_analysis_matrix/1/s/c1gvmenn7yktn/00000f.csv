@@ -1,1 +1,0 @@
-"0","df_matrix = df_matrix %>% mutate(r_assigns=sample(c(""Etat"",""Non Etat""), nrow(df_matrix), replace=TRUE))"

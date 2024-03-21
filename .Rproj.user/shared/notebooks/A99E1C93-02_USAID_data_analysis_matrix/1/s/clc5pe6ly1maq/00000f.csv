@@ -1,7 +1,0 @@
-"0","EVALUATION_DES_CAPACITES_Hema$institutions<-1"
-"0",""
-"0","EVALUATION_DES_CAPACITES_Hema$organis2<-paste0(""I"",1:343)"
-"0",""
-"0",""
-"0","# df=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis, q_iii_10_2,q_iii_1) %>% "
-"0","#   spread(organis, q_iii_10_2)"

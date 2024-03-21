@@ -1,6 +1,0 @@
-"0","df_1=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis2, q_iii_2_1,institutions) %>%
-  pivot_wider(names_from = organis2, values_from = institutions)
-"
-"2","Error in EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis2, q_iii_2_1,  : 
-  could not find function ""%>%""
-"
