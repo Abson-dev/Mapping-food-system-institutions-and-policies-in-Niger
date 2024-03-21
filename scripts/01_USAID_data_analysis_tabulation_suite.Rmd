@@ -21,18 +21,12 @@ library(gtsummary)
 library(flextable)
 library(magrittr)
 
-# fp <- fp_par(
-#   text.align = "center", 
-#   padding.bottom = 20, padding.top = 120, 
-#   border.bottom = fp_border())
-# 
-# ft <- fp_text(shading.color='#EFEFEF', bold = F)
 set_gtsummary_theme(theme_gtsummary_compact())
 
 ######### Create default BioAVR table from dataframe
 #
 # Dependencies : dplyr, flextable, officer
-#
+# source link : https://www.r-bloggers.com/2021/11/publication-ready-tables-with-flextable-and-own-theme-in-r/
 customtab_defaults <- function(){
 set_flextable_defaults(font.family = "Calibri",
 font.size = 10,
@@ -44,7 +38,7 @@ add_header_lines(header) %>%
 add_footer_lines(footer) %>%
 bold(i = 1, part = "header") %>%
 hline_top(part = "header",
-border = fp_border(color = "red",
+border = fp_border(color = "green",
 width = 3,
 style = "solid")) %>%
 hline(i = 1,
