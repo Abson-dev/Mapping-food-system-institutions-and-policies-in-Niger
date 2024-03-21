@@ -1,0 +1,97 @@
+---
+title: "Mapping food system institutions and policies in Niger"
+author: "HEMA Aboubacar"
+date: '`r format (Sys.Date(), "%d %B %Y")`'
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+---
+
+```{r setup, include = FALSE, warning=FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library(officedown)
+library(officer)
+
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = F)
+```
+
+
+<!---BLOCK_TOC--->
+
+\newpage
+
+```{r}
+library(dplyr)
+library(expss)
+library(openxlsx)
+library(readxl)
+library(tidyverse)
+library(janitor)
+library(gtsummary)
+library(data.table)
+library(stringr)
+library(compareDF)
+library(sjlabelled)
+library(lmtest)
+library(sandwich)
+```
+
+
+```{r}
+rm(list = ls())
+```
+
+```{r}
+library(haven)
+EVALUATION_DES_CAPACITES_Hema <- read_dta(paste0(here::here(),"/data/IFPRI NIGER - EVALUATION DES CAPACITES_Hema.dta"))
+
+```
+
+
+```{r}
+EVALUATION_DES_CAPACITES_Hema$organis
+EVALUATION_DES_CAPACITES_Hema$q_iii_10_2
+```
+
+
+```{r}
+library(tidyr)
+
+stocks <- tibble(
+  time = as.Date("2009-01-01") + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+stocksm <- stocks %>% gather(stock, price, -time)
+stocksm %>% spread(stock, price)
+stocksm %>% spread(time, price)
+```
+
+```{r}
+EVALUATION_DES_CAPACITES_Hema$institutions<-1
+
+
+# df=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis, q_iii_10_2,q_iii_1) %>% 
+#   spread(organis, q_iii_10_2)
+```
+
+```{r}
+library(tidyr)
+
+
+df=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis, q_iii_10_2,institutions) %>%
+  pivot_wider(names_from = organis, values_from = institutions)
+```
+

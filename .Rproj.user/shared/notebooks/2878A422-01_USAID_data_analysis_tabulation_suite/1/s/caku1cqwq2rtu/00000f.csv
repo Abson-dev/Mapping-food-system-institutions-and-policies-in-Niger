@@ -1,0 +1,4 @@
+"0","library(haven)"
+"0","EVALUATION_DES_CAPACITES_Hema <- read_dta(paste0(here::here(),""/data/IFPRI NIGER - EVALUATION DES CAPACITES_Hema.dta""))"
+"0","domain = c(""dom_1"",""dom_2"",""dom_3"",""dom_4"",""dom_5"")"
+"0","attach(EVALUATION_DES_CAPACITES_Hema)"

@@ -1,0 +1,135 @@
+## Environment : policies / programs / strategies related to food systems directly influence your organization
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_5,q_ii_1,q_ii_3_1) %>% 
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>%  apply_labels(q_ii_1 = "# policies / programs / strategies related to food systems directly influence",q_ii_3_5 = "Source of funding for specific policies / programs / strategies") %>% labelled::to_factor() %>% 
+  tbl_summary(by = dom_5, 
+              type= (list=c(q_ii_1,q_ii_3_1) ~ "categorical"),
+              
+              statistic = list(all_categorical() ~ "{p}({n})"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+```
+
+## Environment : strengths of these specific policies/programs/strategies
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_5,
+                                                 q_ii_8_1_5,
+                                                 q_ii_8_2_5,
+                                                 q_ii_8_3_5,
+                                                 q_ii_8_4_5,
+                                                 q_ii_8_5_5,
+                                                 q_ii_8_6_5,
+                                                 # q_ii_8_7_5,
+                                                 # q_ii_8_8_5,
+                                                 # q_ii_8_9_5,
+                                                 q_ii_8_96_5
+) %>% 
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_8"), as.numeric)) %>% 
+  apply_labels(q_ii_8_1_5 = "Coordination and collaboration",
+               q_ii_8_2_5 = "Global vision",
+               q_ii_8_3_5 = "Strategic direction",
+               q_ii_8_4_5 = "Regulations and policies",
+               q_ii_8_5_5 = "Public investment",
+               q_ii_8_6_5 = "Mobilizing civil society",
+               # q_ii_8_7_5 = "International food diplomacy",
+               # q_ii_8_8_5 = "Education and awareness-raising",
+               # q_ii_8_9_5 = "Innovation and adaptation",
+               q_ii_8_96_5 = "Other ( specify )"
+  ) %>%  
+  tbl_summary(by = dom_5, 
+              type= (list=c(q_ii_8_1_5,
+                            q_ii_8_2_5,
+                            q_ii_8_3_5,
+                            q_ii_8_4_5,
+                            q_ii_8_5_5,
+                            q_ii_8_6_5,
+                            # q_ii_8_7_5,
+                            # q_ii_8_8_5,
+                            # q_ii_8_9_5,
+                            q_ii_8_96_5) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+```
+
+
+
+## Environment : Gaps/Changes needed
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_5,
+                                                 q_ii_9_1_5,
+                                                 q_ii_9_2_5,
+                                                 q_ii_9_3_5,
+                                                 q_ii_9_4_5,
+                                                 q_ii_9_5_5,
+                                                 q_ii_9_6_5,
+                                                 q_ii_9_7_5,
+                                                 # q_ii_9_8_5,
+                                                 # q_ii_9_9_5,
+                                                 # q_ii_9_10_5,
+                                                 q_ii_9_96_5
+) %>% 
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_9"), as.numeric)) %>% 
+  apply_labels(q_ii_9_1_5 = "Lack of coordination",
+               q_ii_9_2_5 = "Unequal access",
+               q_ii_9_3_5 = "Food industry lobbying",
+               q_ii_9_4_5 = "Focus on production rather than nutrition",
+               q_ii_9_5_5 = "Pressure on natural resources",
+               q_ii_9_6_5 = "Lack of public awareness",
+               q_ii_9_7_5 = "Short-term vision",
+               # q_ii_9_8_5 = "Bureaucratic inefficiency",
+               # q_ii_9_9_5 = "Lack of financial resources",
+               # q_ii_9_10_5 = "Resistance to change",
+               q_ii_9_11_5 = "Other ( specify)"
+  ) %>%  
+  tbl_summary(by = dom_5, 
+              type= (list=c(q_ii_9_1_5,
+                            q_ii_9_2_5,
+                            q_ii_9_3_5,
+                            q_ii_9_4_5,
+                            q_ii_9_5_5,
+                            q_ii_9_6_5,
+                            q_ii_9_7_5,
+                            # q_ii_9_8_5,
+                            # q_ii_9_9_5,
+                            # q_ii_9_10_5,
+                            q_ii_9_96_5) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+```
+
+

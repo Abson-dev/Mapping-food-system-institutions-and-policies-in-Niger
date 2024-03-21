@@ -1,0 +1,193 @@
+---
+title: "Exercice 3"
+author: "Aboubacar HEMA"
+date: "2/11/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+1.	Data cleaning & management (20 points) 
+Prepare the dataset for analysis. This involves the following tasks:
+
+
+
+
+1.1.	Import the excel data (attached to the email) into Stata or R
+
+
+```{r}
+library(readxl)
+test_data_exercise_3 <- read_excel("test_data_exercise_3.xlsx")
+#View(test_data_exercise_3)
+
+
+district_data <- read_excel("test_data_exercise_3.xlsx",    sheet = "district")
+
+#View(district_data )
+```
+
+1.2.	Label the values for variable “sex”
+
+```{r}
+library(dplyr)
+test_data_exercise_3 <- test_data_exercise_3 %>% 
+  mutate(sex=ifelse(sex==0,"Male","Female"))
+```
+
+
+1.3.	Rename “country_destination” variable to “destination” and set negative values to missing
+
+
+
+```{r}
+test_data_exercise_3 <- test_data_exercise_3 %>% rename(destination=country_destination) %>% mutate(destination=ifelse(destination<0,NA,destination))
+```
+
+
+1.4.	Create a new variable containing 5-year age brackets using the “age” variable
+
+
+```{r}
+max(test_data_exercise_3$age, na.rm = T)
+#999
+
+min(test_data_exercise_3$age, na.rm = T)
+#15
+range(test_data_exercise_3$age, na.rm = T)
+#15 999
+
+test_data_exercise_3 <- test_data_exercise_3 %>% 
+  mutate(age=ifelse(age==999,NA,age))
+
+range(test_data_exercise_3$age, na.rm = T)
+#15 43
+
+test_data_exercise_3 <- test_data_exercise_3 %>% mutate(age_class=case_when(
+  age<=20~"15-20",
+  20<age & age <=25~"20-25",
+  25<age & age <=30~"25-30",
+  30<age & age <=35~"30-35",
+  35<age & age <=40~"35-40",
+  40<age ~"40-45"
+))
+```
+
+
+1.5.	Create a new variable containing the number of interviews that each enumerator conducted
+
+```{r}
+test_data_exercise_3 <- test_data_exercise_3 %>% 
+  group_by(enumerator) %>% 
+  mutate(n_interviews=n())
+```
+
+1.6.	Create a new variable that randomly assigns each respondent into a treatment (1) or control (0)
+
+```{r}
+set.seed(1994)
+
+test_data_exercise_3 <- test_data_exercise_3 %>%
+  ungroup() %>% 
+  mutate(r_assigns=sample(c("treatment","control"), nrow(test_data_exercise_3), replace=TRUE))
+```
+
+1.7.	Merge the population size of each district (sheet 2) to the dataset (sheet 1) so that all respondents have a corresponding value representing the population size of the district that they live in.
+
+```{r}
+test_data_exercise_3 <- merge(test_data_exercise_3,district_data)
+
+```
+
+
+Extra points: 
+1.8.	Calculate how long the interview has taken and show the mean interview time by enumerator
+
+```{r}
+library(lubridate) # for date
+time <- test_data_exercise_3 %>%
+  mutate(end_ymd=ymd_hms(as.Date(endtime)),
+         start_ymd=ymd_hms(as.Date(starttime))) %>% 
+  group_by(enumerator) %>% 
+  mutate(duration=end_ymd-start_ymd,
+         mean_inter=mean(duration,na.rm = T))
+  
+  
+```
+
+1.9.	Rename all variables in the dataset by adding the prefix “endline_” using a loop.
+
+```{r}
+
+
+n<-names(test_data_exercise_3)
+rename_test_data_exercise_3<-test_data_exercise_3
+names(rename_test_data_exercise_3)<-paste("endline_",n)
+
+
+```
+
+2.	Data analysis & visualization (30 points)
+
+
+
+2.1.	Create a summary table containing the mean age and mean number of children by district
+
+```{r}
+df_sum <- test_data_exercise_3 %>% 
+  group_by(district) %>% 
+  mutate(mean_age = mean(age,na.rm = T),
+         
+         mean_n=mean(children_num,na.rm = )) %>% 
+  select(district,mean_age,mean_n) %>% 
+  distinct()
+```
+
+2.2.	Test whether the difference in age between the sexes is statistically significant at the 5% level.
+
+
+```{r}
+#
+```
+
+2.3.	Create a scatterplot of age by the number of children
+
+```{r}
+library(ggplot2)
+
+ggplot(test_data_exercise_3) +
+ aes(x = children_num, y = age) +
+ geom_point(size = 1L, colour = "#0c4c8a") +
+ theme_minimal()
+```
+
+2.4.	The variable “intention” captures whether potential migrants intend to migrate on a scale from 1-7. Estimate the effect of being in the treatment group (see 2.6) on the intention to migrate and describe briefly how to interpret the effect.
+
+
+```{r}
+# we can use caret package to solve this, but luck of time
+```
+
+2.5.	Regress age on treatment, with district fixed effects. 
+
+```{r}
+# we can use caret package to solve this, but luck of time
+```
+
+2.6.	Create a regression table with 3 models. The outcome variable is always “intention”. Model A: Empty model – Effect of treatment on intentions. Model B: Effect of treatment on intention adjusting for age and sex. Model C: Same as Model B but controlling for district. Output for all three models should be displayed in one table containing significance stars for significance levels. 
+
+```{r}
+# we can use caret package to solve this, but luck of time
+```
+
+2.7.	What is the predicted probability of being male (compared to female) for respondents under 25 compared to over 25? 
+
+```{r}
+# we can use caret package to solve this, but luck of time
+```
+

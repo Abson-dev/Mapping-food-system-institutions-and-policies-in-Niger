@@ -1,0 +1,12 @@
+"0","library(tidyr)"
+"0",""
+"0",""
+"0","df=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(organis, q_iii_10_2,q_iii_1) %>%"
+"0","  pivot_wider(names_from = organis, values_from = institutions)"
+"1","[1m[33mError[39m in `pivot_wider()`:[22m
+[33m![39m Can't subset columns that don't exist.
+[31m✖[39m Column `institutions` doesn't exist.
+Backtrace:
+[90m 1. [39m... %>% ...
+[90m 3. [39m[1m[94mtidyr:::pivot_wider.data.frame([39m[22m., names_from = organis, values_from = institutions[1m[94m)[39m[22m
+"

@@ -1,0 +1,8 @@
+"0","df_Role = plyr::cbind.fill(df_Role_dom_1,
+                           df_Role_dom_2,
+                           df_Role_dom_3,
+                           df_Role_dom_4,
+                           df_Role_dom_5)
+"
+"2","Error: 'cbind.fill' is not an exported object from 'namespace:plyr'
+"

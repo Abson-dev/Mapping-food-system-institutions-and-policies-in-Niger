@@ -1,0 +1,3 @@
+"0","library(haven)"
+"0","EVALUATION_DES_CAPACITES_Hema <- read_dta(paste0(here::here(),""/data/IFPRI NIGER - EVALUATION DES CAPACITES_Hema.dta""))"
+"0",""

@@ -1,0 +1,12 @@
+"0","EVALUATION_DES_CAPACITES_Hema$institutions<-paste0(""Institution "",1:343)"
+"0",""
+"0",""
+"0","df=EVALUATION_DES_CAPACITES_Hema %>% dplyr::select(institutions, q_iii_10_2q_iii_1) %>% "
+"0","  spread(institutions, q_iii_10_2)"
+"1","[1m[33mError[39m in `dplyr::select()`:[22m
+[33m![39m Can't subset columns that don't exist.
+[31m✖[39m Column `q_iii_10_2q_iii_1` doesn't exist.
+Backtrace:
+[90m 1. [39m... %>% spread(institutions, q_iii_10_2)
+[90m 4. [39m[1m[94mdplyr:::select.data.frame([39m[22m., institutions, q_iii_10_2q_iii_1[1m[94m)[39m[22m
+"

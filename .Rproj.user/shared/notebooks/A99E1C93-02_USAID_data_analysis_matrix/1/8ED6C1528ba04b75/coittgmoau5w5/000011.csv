@@ -1,0 +1,2 @@
+"0","fish_encounters %>%"
+"0","  pivot_wider(names_from = station, values_from = seen)"
