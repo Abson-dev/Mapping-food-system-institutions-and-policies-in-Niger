@@ -1,7 +1,0 @@
-description = tibble(
-  name = var_vec,
-  label = label_vec
-)
-var_labels <- setNames(as.list(description$label), description$name)
-df <- df %>%
-  set_variable_labels(.labels = var_labels, .strict = FALSE)
