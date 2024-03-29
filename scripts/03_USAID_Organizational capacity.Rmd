@@ -152,6 +152,25 @@ attach(EVALUATION_DES_CAPACITES_Hema)
 ```{r}
 var_vec = c("q_iii_25"
 )
+# EVALUATION_DES_CAPACITES_Hema = EVALUATION_DES_CAPACITES_Hema %>% dplyr::mutate(q_iii_25 = dplyr::recode(q_iii_25, `1` = 1,`2` =1 ,`3`= 2, `4`= 3,`5`= 3))
+# EVALUATION_DES_CAPACITES_Hema <- EVALUATION_DES_CAPACITES_Hema %>% 
+#   dplyr::mutate(across(var_vec,
+#                 ~recode(.,
+#                   "1" = 1,"2" =1 ,"3"= 2, "4"= 3,"5"= 3
+#                 
+#                 )
+#   )
+#   )
+# 
+# EVALUATION_DES_CAPACITES_Hema <- EVALUATION_DES_CAPACITES_Hema %>% 
+#   dplyr::mutate(across(var_vec,
+#                 ~labelled::labelled(., labels = c(
+#                   Agree = 1,Neutral = 2,Disagree =3
+#                 )
+#                 )
+#   )
+#  )
+# EVALUATION_DES_CAPACITES_Hema$q_iii_25 <- labelled::labelled(EVALUATION_DES_CAPACITES_Hema$q_iii_25, c(Agree = 1,Neutral = 2,Disagree =3))
 
 df = EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(domain,var_vec) %>% 
   dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No")) %>%
