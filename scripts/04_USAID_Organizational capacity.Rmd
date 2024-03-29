@@ -3488,12 +3488,11 @@ var_vec = c("q_iv_7_1",
 
 label_var = c("Weaknesses of links with interdisciplinary research on food systems")
 
-label_vec = c("Some researchers need additional training in collaboration, scientific communication and project management.",
-              "Lack of effective coordination within the network, leading to duplication of effort, loss of resources and lack of alignment on common goals.",
-              "Limited research funding",
-              "Researchers working in remote areas face challenges related to geographic isolation, difficult travel and the costs associated with face-to-face meetings.",
-              "Researchers within the network have unequal resources, particularly in terms of access to research infrastructure, funding and equipment.",
-              "Other ( specify )"
+label_vec = c("Takes longer and requires more resources",
+"Difficult to balance the research priorities of different disciplines within an interdisciplinary team",
+"Difficult to fully integrate interdisciplinary research findings into policy and practice",
+"Complex and demanding coordination between researchers from different disciplines",
+"Other ( specify )"
 )
 
 df = EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(domain,var_vec) %>% 
