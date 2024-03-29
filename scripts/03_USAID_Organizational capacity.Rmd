@@ -127,6 +127,39 @@ domain = c("dom_1","dom_2","dom_3","dom_4","dom_5")
 attach(EVALUATION_DES_CAPACITES_Hema)
 ```
 
+
+```{r}
+var_recode = c("q_iii_25","q_iii_30","q_iii_35",
+"q_iv_1","q_iv_5","q_v_1","q_v_5",
+"q_vi_1","q_vi_5","q_vi_9","q_vii_1",
+"q_vii_5","q_vii_9","q_vii_11","q_vii_10",
+"q_vii_15","q_vii_19","q_vii_21","q_vii_23",
+"q_viii_1","q_viii_5","q_viii_9","q_ix_1",
+"q_ix_5","q_ix_11","q_ix_15","q_ix_22",
+"q_x_1","q_x_4","q_x_6","q_x_8"
+)
+
+
+ EVALUATION_DES_CAPACITES_Hema <- EVALUATION_DES_CAPACITES_Hema %>%
+  dplyr::mutate(across(var_recode,
+                ~dplyr::recode(.,`1` = 1,`2` =1 ,`3`= 2, `4`= 3,`5`= 3
+                )
+                )
+  )
+
+
+EVALUATION_DES_CAPACITES_Hema <- EVALUATION_DES_CAPACITES_Hema %>%
+  dplyr::mutate(across(var_recode,
+                ~labelled::labelled(., labels = c(
+                  Agree = 1,Neutral = 2,Disagree =3
+                )
+                )
+  )
+ )
+```
+
+
+
 ```{r}
 # //Organizational capacity
 #  
@@ -152,25 +185,6 @@ attach(EVALUATION_DES_CAPACITES_Hema)
 ```{r}
 var_vec = c("q_iii_25"
 )
-# EVALUATION_DES_CAPACITES_Hema = EVALUATION_DES_CAPACITES_Hema %>% dplyr::mutate(q_iii_25 = dplyr::recode(q_iii_25, `1` = 1,`2` =1 ,`3`= 2, `4`= 3,`5`= 3))
-# EVALUATION_DES_CAPACITES_Hema <- EVALUATION_DES_CAPACITES_Hema %>% 
-#   dplyr::mutate(across(var_vec,
-#                 ~recode(.,
-#                   "1" = 1,"2" =1 ,"3"= 2, "4"= 3,"5"= 3
-#                 
-#                 )
-#   )
-#   )
-# 
-# EVALUATION_DES_CAPACITES_Hema <- EVALUATION_DES_CAPACITES_Hema %>% 
-#   dplyr::mutate(across(var_vec,
-#                 ~labelled::labelled(., labels = c(
-#                   Agree = 1,Neutral = 2,Disagree =3
-#                 )
-#                 )
-#   )
-#  )
-# EVALUATION_DES_CAPACITES_Hema$q_iii_25 <- labelled::labelled(EVALUATION_DES_CAPACITES_Hema$q_iii_25, c(Agree = 1,Neutral = 2,Disagree =3))
 
 df = EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(domain,var_vec) %>% 
   dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No")) %>%
@@ -189,7 +203,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -208,7 +222,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -225,7 +239,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -241,7 +255,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -257,7 +271,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -335,7 +349,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -354,7 +368,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -371,7 +385,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -387,7 +401,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -403,7 +417,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -471,7 +485,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -490,7 +504,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -507,7 +521,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -523,7 +537,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -539,7 +553,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -613,7 +627,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -632,7 +646,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -649,7 +663,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -665,7 +679,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -681,7 +695,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -749,7 +763,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -768,7 +782,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -785,7 +799,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -801,7 +815,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -817,7 +831,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -888,7 +902,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -907,7 +921,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -924,7 +938,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -940,7 +954,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -956,7 +970,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1024,7 +1038,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1043,7 +1057,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1060,7 +1074,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1076,7 +1090,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1092,7 +1106,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1163,7 +1177,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1182,7 +1196,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1199,7 +1213,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1215,7 +1229,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1231,7 +1245,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1299,7 +1313,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1318,7 +1332,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1335,7 +1349,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1351,7 +1365,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1367,7 +1381,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1435,7 +1449,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1454,7 +1468,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1471,7 +1485,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1487,7 +1501,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1503,7 +1517,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1579,7 +1593,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1598,7 +1612,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1615,7 +1629,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1631,7 +1645,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1647,7 +1661,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1716,7 +1730,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1735,7 +1749,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1752,7 +1766,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1768,7 +1782,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1784,7 +1798,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1854,7 +1868,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -1873,7 +1887,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -1890,7 +1904,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -1906,7 +1920,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -1922,7 +1936,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -1992,7 +2006,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2011,7 +2025,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2028,7 +2042,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2044,7 +2058,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2060,7 +2074,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2130,7 +2144,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2149,7 +2163,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2166,7 +2180,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2182,7 +2196,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2198,7 +2212,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2269,7 +2283,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2288,7 +2302,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2305,7 +2319,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2321,7 +2335,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2337,7 +2351,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2408,7 +2422,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2427,7 +2441,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2444,7 +2458,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2460,7 +2474,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2476,7 +2490,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2546,7 +2560,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2565,7 +2579,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2582,7 +2596,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2598,7 +2612,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2614,7 +2628,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2684,7 +2698,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2703,7 +2717,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2720,7 +2734,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2736,7 +2750,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2752,7 +2766,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2829,7 +2843,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2848,7 +2862,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -2865,7 +2879,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -2881,7 +2895,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -2897,7 +2911,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -2967,7 +2981,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -2986,7 +3000,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3003,7 +3017,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3019,7 +3033,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3035,7 +3049,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3105,7 +3119,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3124,7 +3138,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3141,7 +3155,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3157,7 +3171,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3173,7 +3187,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3250,7 +3264,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3269,7 +3283,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3286,7 +3300,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3302,7 +3316,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3318,7 +3332,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3388,7 +3402,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3407,7 +3421,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3424,7 +3438,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3440,7 +3454,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3456,7 +3470,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3526,7 +3540,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3545,7 +3559,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3562,7 +3576,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3578,7 +3592,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3594,7 +3608,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3664,7 +3678,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3683,7 +3697,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3700,7 +3714,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3716,7 +3730,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3732,7 +3746,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3802,7 +3816,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3821,7 +3835,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3838,7 +3852,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3854,7 +3868,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -3870,7 +3884,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -3947,7 +3961,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -3966,7 +3980,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -3983,7 +3997,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -3999,7 +4013,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4015,7 +4029,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4085,7 +4099,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4104,7 +4118,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4121,7 +4135,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4137,7 +4151,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4153,7 +4167,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4222,7 +4236,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4241,7 +4255,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4258,7 +4272,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4274,7 +4288,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4290,7 +4304,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4360,7 +4374,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4379,7 +4393,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4396,7 +4410,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4412,7 +4426,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4428,7 +4442,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4504,7 +4518,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4523,7 +4537,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4540,7 +4554,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4556,7 +4570,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4572,7 +4586,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4641,7 +4655,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4660,7 +4674,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4677,7 +4691,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4693,7 +4707,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4709,7 +4723,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4778,7 +4792,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4797,7 +4811,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4814,7 +4828,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4830,7 +4844,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4846,7 +4860,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -4915,7 +4929,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -4934,7 +4948,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -4951,7 +4965,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -4967,7 +4981,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -4983,7 +4997,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
@@ -5053,7 +5067,7 @@ tb_1 = df %>% dplyr::select(dom_1,var_vec
 ) %>%  
   tbl_summary(by = dom_1,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Nutrition, health, and food, security") %>%
   add_overall() %>%
@@ -5072,7 +5086,7 @@ tb_2=df %>% dplyr::select(dom_2,var_vec
 ) %>%  
   tbl_summary(by = dom_2,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
   add_overall() %>%
@@ -5089,7 +5103,7 @@ tb_3=df %>% dplyr::select(dom_3,var_vec
 )  %>%  
   tbl_summary(by = dom_3,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Gender equality, youth, and social inclusion") %>%
   add_overall() %>%
@@ -5105,7 +5119,7 @@ tb_4=df %>% dplyr::select(dom_4,var_vec
 )%>%  
   tbl_summary(by = dom_4,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Climate adaptation and mitigation") %>%
   add_overall() %>%
@@ -5121,7 +5135,7 @@ tb_5=df %>% dplyr::select(dom_5,var_vec
 ) %>%  
   tbl_summary(by = dom_5,
               type= (list=var_vec ~ "categorical"),
-              statistic = list(all_categorical() ~ "{n}({p}%)"),
+              statistic = list(all_categorical() ~ "{p}%"),
               digits = everything() ~ c(0,1), missing = "no") %>%
   modify_header(label = "Environmental health and biodiversity") %>%
   add_overall() %>%
