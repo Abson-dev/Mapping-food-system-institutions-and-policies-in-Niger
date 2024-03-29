@@ -1,0 +1,597 @@
+---
+title: "Mapping food system institutions and policies in Niger"
+author: "Hema Aboubacar & Srivastava  Nandita"
+date: '`r format (Sys.Date(), "%d %B %Y")`'
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+---
+
+
+```{r setup, include = FALSE, warning=FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library(officedown)
+library(officer)
+library(gtsummary)
+library(flextable)
+library(magrittr)
+
+set_gtsummary_theme(theme_gtsummary_compact())
+
+######### Create default BioAVR table from dataframe
+#
+# Dependencies : dplyr, flextable, officer
+# source link : https://www.r-bloggers.com/2021/11/publication-ready-tables-with-flextable-and-own-theme-in-r/
+customtab_defaults <- function(){
+set_flextable_defaults(font.family = "Calibri",
+font.size = 10,
+border.color = "black")
+}
+FitFlextableToPage <- function(ft, pgwidth = 7){
+
+  ft_out <- ft %>% autofit()
+
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+custom_tab <- function(df, header, footer){
+flextable(df) %>%
+add_header_lines(header) %>%
+add_footer_lines(footer) %>%
+bold(i = 1, part = "header") %>%
+hline_top(part = "header",
+border = fp_border(color = "green",
+width = 3,
+style = "solid")) %>%
+hline(i = 1,
+part = "header",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+hline_top(part = "body",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+hline_bottom(part = "body",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+hline_bottom(part = "footer",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+border_inner_h(part = "body",
+border = fp_border(color = "black",
+width = 0.25,
+style = "dotted")) %>%
+autofit(part = "body") %>%
+bg(part = "body", bg = "#f5f5f5") %>%
+align(part = "all", align = "center") %>%
+align(j = 1, part = "all", align = "left")
+}
+```
+
+
+<!---BLOCK_TOC--->
+
+\newpage
+
+```{r}
+library(dplyr)
+library(expss)
+library(openxlsx)
+library(readxl)
+library(tidyverse)
+library(janitor)
+
+library(data.table)
+library(stringr)
+library(compareDF)
+library(sjlabelled)
+library(lmtest)
+library(sandwich)
+library(labelled)
+
+```
+
+```{r echo=F}
+# This function aims at providing customized statistics in the table that 
+# with be produced using the gtsummary package
+# Basically the gtsummary does not include such a function 
+add_by_n <- function(data, variable, by, tbl, ...) {
+  data %>%
+    select(all_of(c(variable, by))) %>%
+    dplyr::group_by(.data[[by]]) %>%
+    dplyr::summarise_all(~sum(!is.na(.))) %>%
+    rlang::set_names(c("by", "variable")) %>%
+    dplyr::left_join(
+      tbl$df_by %>% select(by, by_col),
+      by = "by"
+    ) %>%
+    mutate(
+      by_col = paste0("add_n_", by_col),
+      variable = style_number(variable)
+    ) %>%
+    select(-by) %>%
+    tidyr::pivot_wider(names_from = by_col, 
+                       values_from = variable)
+}
+
+```
+
+<!---BLOCK_LANDSCAPE_START--->
+
+```{r}
+library(haven)
+EVALUATION_DES_CAPACITES_Hema <- read_dta(paste0(here::here(),"/data/IFPRI NIGER - EVALUATION DES CAPACITES_Hema.dta"))
+domain = c("dom_1","dom_2","dom_3","dom_4","dom_5")
+attach(EVALUATION_DES_CAPACITES_Hema)
+```
+
+
+```{r}
+components = c("composant_fs_1_1",
+"composant_fs_2_1",
+"composant_fs_3_1",
+"composant_fs_4_1",
+"composant_fs_5_1",
+"composant_fs_6_1",
+"composant_fs_7_1",
+"composant_fs_8_1",
+"composant_fs_9_1",
+"composant_fs_10_1",
+"composant_fs_11_1",
+"composant_fs_12_1",
+"composant_fs_13_1",
+"composant_fs_14_1",
+"composant_fs_15_1",
+"composant_fs_16_1",
+"composant_fs_17_1",
+"composant_fs_18_1",
+"composant_fs_19_1",
+"composant_fs_20_1",
+"composant_fs_21_1",
+"composant_fs_22_1",
+"composant_fs_23_1",
+"composant_fs_24_1",
+"composant_fs_25_1",
+"composant_fs_96_1")
+```
+
+```{r}
+components_df = apply_labels(EVALUATION_DES_CAPACITES_Hema,composant_fs_1_1 = "Inputs access",	
+composant_fs_2_1 = "Production (primary)",	
+composant_fs_3_1 = "Processing",	
+composant_fs_4_1 = "Packaging",	
+composant_fs_5_1 = "Distribution and retailing",	
+composant_fs_6_1 = "Consumption",	
+composant_fs_7_1 = "Food availability",	
+composant_fs_8_1 = "Access to food : Affordability",	
+composant_fs_9_1 = "Nutritional value",	
+composant_fs_10_1 = "Food safety",	
+composant_fs_11_1 = "Water",	
+composant_fs_12_1 = "Weather ",	
+composant_fs_13_1 = "Gas emission",	
+composant_fs_14_1 = "Land and soil",	
+composant_fs_15_1 = "Pollution",	
+composant_fs_16_1 = "Trade",	
+composant_fs_17_1 = "Income growth and distribution",	
+composant_fs_18_1 = "Demographic shifts",	
+composant_fs_19_1 = "Leadership and Governance",	
+composant_fs_20_1 = "Socio-cultural context",	
+composant_fs_21_1 = "Social protection",	
+composant_fs_22_1 = "Energy",	
+composant_fs_23_1 = "Science and technology",	
+composant_fs_24_1 = "Investment",	
+composant_fs_25_1 = "Equity",	
+composant_fs_26_1 = "Exposure to shocks/stressors"	
+,	
+composant_fs_96_1 = "Other ( specify )"	
+)
+components_df = components_df %>% dplyr::select(dom_1,components) %>% 
+  dplyr::mutate(across(components, as.numeric)) %>% 
+  dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No"))
+```
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+tb_fc_dom_1 = components_df  %>% 
+  tbl_summary(by = dom_1, 
+                    type= (list=components ~ "continuous"),
+
+       statistic = list(all_continuous() ~ "{mean}"),
+          digits = everything() ~ c(2,0), missing = "no") %>%
+ modify_header(label = "Food components in 	Nutrition, health, and food security area") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+
+```
+
+
+```{r}
+components = c("composant_fs_1_2",
+               "composant_fs_2_2",
+               "composant_fs_3_2",
+               "composant_fs_4_2",
+               "composant_fs_5_2",
+               "composant_fs_6_2",
+               "composant_fs_7_2",
+               "composant_fs_8_2",
+               "composant_fs_9_2",
+               "composant_fs_10_2",
+               "composant_fs_11_2",
+               "composant_fs_12_2",
+               "composant_fs_13_2",
+               "composant_fs_14_2",
+               "composant_fs_15_2",
+               "composant_fs_16_2",
+               "composant_fs_17_2",
+               "composant_fs_18_2",
+               "composant_fs_19_2",
+               "composant_fs_20_2",
+               "composant_fs_21_2",
+               "composant_fs_22_2",
+               "composant_fs_23_2",
+               "composant_fs_24_2",
+               "composant_fs_25_2",
+               "composant_fs_96_2")
+```
+
+```{r}
+components_df = apply_labels(EVALUATION_DES_CAPACITES_Hema,composant_fs_1_2 = "Inputs access",	
+                             composant_fs_2_2 = "Production (primary)",	
+                             composant_fs_3_2 = "Processing",	
+                             composant_fs_4_2 = "Packaging",	
+                             composant_fs_5_2 = "Distribution and retailing",	
+                             composant_fs_6_2 = "Consumption",	
+                             composant_fs_7_2 = "Food availability",	
+                             composant_fs_8_2 = "Access to food : Affordability",	
+                             composant_fs_9_2 = "Nutritional value",	
+                             composant_fs_10_2 = "Food safety",	
+                             composant_fs_11_2 = "Water",	
+                             composant_fs_12_2 = "Weather ",	
+                             composant_fs_13_2 = "Gas emission",	
+                             composant_fs_14_2 = "Land and soil",	
+                             composant_fs_15_2 = "Pollution",	
+                             composant_fs_16_2 = "Trade",	
+                             composant_fs_17_2 = "Income growth and distribution",	
+                             composant_fs_18_2 = "Demographic shifts",	
+                             composant_fs_19_2 = "Leadership and Governance",	
+                             composant_fs_20_2 = "Socio-cultural context",	
+                             composant_fs_21_2 = "Social protection",	
+                             composant_fs_22_2 = "Energy",	
+                             composant_fs_23_2 = "Science and technology",	
+                             composant_fs_24_2 = "Investment",	
+                             composant_fs_25_2 = "Equity",	
+                             composant_fs_26_2 = "Exposure to shocks/stressors"	
+                             ,	
+                             composant_fs_96_2 = "Other ( specify )"	
+)
+components_df = components_df %>% dplyr::select(dom_2,components) %>% 
+  dplyr::mutate(across(components, as.numeric)) %>% 
+  dplyr::mutate(dom_2=ifelse(dom_2==1,"Yes","No"))
+```
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+tb_fc_dom_2 = components_df  %>% 
+  tbl_summary(by = dom_2, 
+              type= (list=components ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+modify_header(label = "") %>%  
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+```
+
+
+```{r}
+components = c("composant_fs_1_3",
+               "composant_fs_2_3",
+               "composant_fs_3_3",
+               "composant_fs_4_3",
+               "composant_fs_5_3",
+               "composant_fs_6_3",
+               "composant_fs_7_3",
+               "composant_fs_8_3",
+               "composant_fs_9_3",
+               "composant_fs_10_3",
+               "composant_fs_11_3",
+               "composant_fs_12_3",
+               "composant_fs_13_3",
+               "composant_fs_14_3",
+               "composant_fs_15_3",
+               "composant_fs_16_3",
+               "composant_fs_17_3",
+               "composant_fs_18_3",
+               "composant_fs_19_3",
+               "composant_fs_20_3",
+               "composant_fs_21_3",
+               "composant_fs_22_3",
+               "composant_fs_23_3",
+               "composant_fs_24_3",
+               "composant_fs_25_3",
+               "composant_fs_96_3")
+```
+
+```{r}
+components_df = apply_labels(EVALUATION_DES_CAPACITES_Hema,composant_fs_1_3 = "Inputs access",	
+                             composant_fs_2_3 = "Production (primary)",	
+                             composant_fs_3_3 = "Processing",	
+                             composant_fs_4_3 = "Packaging",	
+                             composant_fs_5_3 = "Distribution and retailing",	
+                             composant_fs_6_3 = "Consumption",	
+                             composant_fs_7_3 = "Food availability",	
+                             composant_fs_8_3 = "Access to food : Affordability",	
+                             composant_fs_9_3 = "Nutritional value",	
+                             composant_fs_10_3 = "Food safety",	
+                             composant_fs_11_3 = "Water",	
+                             composant_fs_12_3 = "Weather ",	
+                             composant_fs_13_3 = "Gas emission",	
+                             composant_fs_14_3 = "Land and soil",	
+                             composant_fs_15_3 = "Pollution",	
+                             composant_fs_16_3 = "Trade",	
+                             composant_fs_17_3 = "Income growth and distribution",	
+                             composant_fs_18_3 = "Demographic shifts",	
+                             composant_fs_19_3 = "Leadership and Governance",	
+                             composant_fs_20_3 = "Socio-cultural context",	
+                             composant_fs_21_3 = "Social protection",	
+                             composant_fs_22_3 = "Energy",	
+                             composant_fs_23_3 = "Science and technology",	
+                             composant_fs_24_3 = "Investment",	
+                             composant_fs_25_3 = "Equity",	
+                             composant_fs_26_3 = "Exposure to shocks/stressors"	
+                             ,	
+                             composant_fs_96_3 = "Other ( specify )"	
+)
+components_df = components_df %>% dplyr::select(dom_3,components) %>% 
+  dplyr::mutate(across(components, as.numeric)) %>% 
+  dplyr::mutate(dom_3=ifelse(dom_3==1,"Yes","No"))
+```
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+tb_fc_dom_3 = components_df  %>% 
+  tbl_summary(by = dom_3, 
+              type= (list=components ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+modify_header(label = "") %>% 
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+```
+
+```{r}
+components = c("composant_fs_1_4",
+               "composant_fs_2_4",
+               "composant_fs_3_4",
+               "composant_fs_4_4",
+               "composant_fs_5_4",
+               "composant_fs_6_4",
+               "composant_fs_7_4",
+               "composant_fs_8_4",
+               "composant_fs_9_4",
+               "composant_fs_10_4",
+               "composant_fs_11_4",
+               "composant_fs_12_4",
+               "composant_fs_13_4",
+               "composant_fs_14_4",
+               "composant_fs_15_4",
+               "composant_fs_16_4",
+               "composant_fs_17_4",
+               "composant_fs_18_4",
+               "composant_fs_19_4",
+               "composant_fs_20_4",
+               "composant_fs_21_4",
+               "composant_fs_22_4",
+               "composant_fs_23_4",
+               "composant_fs_24_4",
+               "composant_fs_25_4",
+               "composant_fs_96_4")
+```
+
+```{r}
+components_df = apply_labels(EVALUATION_DES_CAPACITES_Hema,composant_fs_1_4 = "Inputs access",	
+                             composant_fs_2_4 = "Production (primary)",	
+                             composant_fs_3_4 = "Processing",	
+                             composant_fs_4_4 = "Packaging",	
+                             composant_fs_5_4 = "Distribution and retailing",	
+                             composant_fs_6_4 = "Consumption",	
+                             composant_fs_7_4 = "Food availability",	
+                             composant_fs_8_4 = "Access to food : Affordability",	
+                             composant_fs_9_4 = "Nutritional value",	
+                             composant_fs_10_4 = "Food safety",	
+                             composant_fs_11_4 = "Water",	
+                             composant_fs_12_4 = "Weather ",	
+                             composant_fs_13_4 = "Gas emission",	
+                             composant_fs_14_4 = "Land and soil",	
+                             composant_fs_15_4 = "Pollution",	
+                             composant_fs_16_4 = "Trade",	
+                             composant_fs_17_4 = "Income growth and distribution",	
+                             composant_fs_18_4 = "Demographic shifts",	
+                             composant_fs_19_4 = "Leadership and Governance",	
+                             composant_fs_20_4 = "Socio-cultural context",	
+                             composant_fs_21_4 = "Social protection",	
+                             composant_fs_22_4 = "Energy",	
+                             composant_fs_23_4 = "Science and technology",	
+                             composant_fs_24_4 = "Investment",	
+                             composant_fs_25_4 = "Equity",	
+                             composant_fs_26_4 = "Exposure to shocks/stressors"	
+                             ,	
+                             composant_fs_96_4 = "Other ( specify )"	
+)
+components_df = components_df %>% dplyr::select(dom_4,components) %>% 
+  dplyr::mutate(across(components, as.numeric)) %>% 
+  dplyr::mutate(dom_4=ifelse(dom_4==1,"Yes","No"))
+```
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+tb_fc_dom_4 = components_df  %>% 
+  tbl_summary(by = dom_4, 
+              type= (list=components ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>% 
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+```
+
+```{r}
+components = c("composant_fs_1_5",
+               "composant_fs_2_5",
+               "composant_fs_3_5",
+               "composant_fs_4_5",
+               "composant_fs_5_5",
+               "composant_fs_6_5",
+               "composant_fs_7_5",
+               "composant_fs_8_5",
+               "composant_fs_9_5",
+               "composant_fs_10_5",
+               "composant_fs_11_5",
+               "composant_fs_12_5",
+               "composant_fs_13_5",
+               "composant_fs_14_5",
+               "composant_fs_15_5",
+               "composant_fs_16_5",
+               "composant_fs_17_5",
+               "composant_fs_18_5",
+               "composant_fs_19_5",
+               "composant_fs_20_5",
+               "composant_fs_21_5",
+               "composant_fs_22_5",
+               "composant_fs_23_5",
+               "composant_fs_24_5",
+               "composant_fs_25_5",
+               "composant_fs_96_5")
+```
+
+```{r}
+components_df = apply_labels(EVALUATION_DES_CAPACITES_Hema,composant_fs_1_5 = "Inputs access",	
+                             composant_fs_2_5 = "Production (primary)",	
+                             composant_fs_3_5 = "Processing",	
+                             composant_fs_4_5 = "Packaging",	
+                             composant_fs_5_5 = "Distribution and retailing",	
+                             composant_fs_6_5 = "Consumption",	
+                             composant_fs_7_5 = "Food availability",	
+                             composant_fs_8_5 = "Access to food : Affordability",	
+                             composant_fs_9_5 = "Nutritional value",	
+                             composant_fs_10_5 = "Food safety",	
+                             composant_fs_11_5 = "Water",	
+                             composant_fs_12_5 = "Weather ",	
+                             composant_fs_13_5 = "Gas emission",	
+                             composant_fs_14_5 = "Land and soil",	
+                             composant_fs_15_5 = "Pollution",	
+                             composant_fs_16_5 = "Trade",	
+                             composant_fs_17_5 = "Income growth and distribution",	
+                             composant_fs_18_5 = "Demographic shifts",	
+                             composant_fs_19_5 = "Leadership and Governance",	
+                             composant_fs_20_5 = "Socio-cultural context",	
+                             composant_fs_21_5 = "Social protection",	
+                             composant_fs_22_5 = "Energy",	
+                             composant_fs_23_5 = "Science and technology",	
+                             composant_fs_24_5 = "Investment",	
+                             composant_fs_25_5 = "Equity",	
+                             composant_fs_26_5 = "Exposure to shocks/stressors"	
+                             ,	
+                             composant_fs_96_5 = "Other ( specify )"	
+)
+components_df = components_df %>% dplyr::select(dom_5,components) %>% 
+  dplyr::mutate(across(components, as.numeric)) %>% 
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No"))
+```
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+tb_fc_dom_5 = components_df  %>% 
+  tbl_summary(by = dom_5, 
+              type= (list=components ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>% 
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+```
+
+
+```{r}
+df_fc_dom_1=tb_fc_dom_1$table_body[,c("var_label","stat_2")]
+df_fc_dom_2=tb_fc_dom_2$table_body[,c("stat_2")]
+df_fc_dom_3=tb_fc_dom_3$table_body[,c("stat_2")]
+df_fc_dom_4=tb_fc_dom_4$table_body[,c("stat_2")]
+df_fc_dom_5=tb_fc_dom_5$table_body[,c("stat_2")]
+
+df_fc = cbind(df_fc_dom_1,
+                df_fc_dom_2,
+                df_fc_dom_3,
+                df_fc_dom_4,
+                df_fc_dom_5)
+
+names(df_fc)=c("Food components",
+                 "Nutrition, health, and food, security",
+                 "Poverty reduction, livelihoods, and jobs",
+                 "Gender equality, youth, and social inclusion",
+                 "Climate adaptation and mitigation",
+                 "Environmental health and biodiversity"
+)
+
+# Set Table header
+header <- str_squish(str_remove("Table: ", "\n"))
+# Set Table footer
+footer <- str_squish(str_remove("", "\n"))
+# Set custom_tab() defaults
+customtab_defaults()
+custom_tab(df_fc, header, footer)
+
+```
+
