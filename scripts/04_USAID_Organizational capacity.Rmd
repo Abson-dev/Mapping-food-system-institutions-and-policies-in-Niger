@@ -1,0 +1,1100 @@
+---
+title: "Mapping food system institutions and policies in Niger"
+author: "Hema Aboubacar & Srivastava  Nandita"
+date: '`r format (Sys.Date(), "%d %B %Y")`'
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+---
+
+
+```{r setup, include = FALSE, warning=FALSE, echo = FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library(officedown)
+library(officer)
+library(gtsummary)
+library(flextable)
+library(magrittr)
+
+set_gtsummary_theme(theme_gtsummary_compact())
+
+######### Create default BioAVR table from dataframe
+#
+# Dependencies : dplyr, flextable, officer
+# source link : https://www.r-bloggers.com/2021/11/publication-ready-tables-with-flextable-and-own-theme-in-r/
+customtab_defaults <- function(){
+set_flextable_defaults(font.family = "Calibri",
+font.size = 10,
+border.color = "black")
+}
+FitFlextableToPage <- function(ft, pgwidth = 7){
+
+  ft_out <- ft %>% autofit()
+
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+custom_tab <- function(df, header, footer){
+flextable(df) %>%
+add_header_lines(header) %>%
+add_footer_lines(footer) %>%
+bold(i = 1, part = "header") %>%
+hline_top(part = "header",
+border = fp_border(color = "green",
+width = 3,
+style = "solid")) %>%
+hline(i = 1,
+part = "header",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+hline_top(part = "body",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+hline_bottom(part = "body",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+hline_bottom(part = "footer",
+border = fp_border(color = "black",
+width = 0.25,
+style = "solid")) %>%
+border_inner_h(part = "body",
+border = fp_border(color = "black",
+width = 0.25,
+style = "dotted")) %>%
+autofit(part = "body") %>%
+bg(part = "body", bg = "#f5f5f5") %>%
+align(part = "all", align = "center") %>%
+align(j = 1, part = "all", align = "left")
+}
+```
+
+
+<!---BLOCK_TOC--->
+
+\newpage
+
+```{r}
+library(dplyr)
+library(expss)
+library(openxlsx)
+library(readxl)
+library(tidyverse)
+library(janitor)
+
+library(data.table)
+library(stringr)
+library(compareDF)
+library(sjlabelled)
+library(lmtest)
+library(sandwich)
+library(labelled)
+
+```
+
+```{r echo=F}
+# This function aims at providing customized statistics in the table that 
+# with be produced using the gtsummary package
+# Basically the gtsummary does not include such a function 
+add_by_n <- function(data, variable, by, tbl, ...) {
+  data %>%
+    select(all_of(c(variable, by))) %>%
+    dplyr::group_by(.data[[by]]) %>%
+    dplyr::summarise_all(~sum(!is.na(.))) %>%
+    rlang::set_names(c("by", "variable")) %>%
+    dplyr::left_join(
+      tbl$df_by %>% select(by, by_col),
+      by = "by"
+    ) %>%
+    mutate(
+      by_col = paste0("add_n_", by_col),
+      variable = style_number(variable)
+    ) %>%
+    select(-by) %>%
+    tidyr::pivot_wider(names_from = by_col, 
+                       values_from = variable)
+}
+
+```
+
+<!---BLOCK_LANDSCAPE_START--->
+
+```{r}
+library(haven)
+EVALUATION_DES_CAPACITES_Hema <- read_dta(paste0(here::here(),"/data/IFPRI NIGER - EVALUATION DES CAPACITES_Hema.dta"))
+domain = c("dom_1","dom_2","dom_3","dom_4","dom_5")
+attach(EVALUATION_DES_CAPACITES_Hema)
+```
+
+```{r}
+# Text analysis
+
+# q_xi_2_1_* // capacity to produce and use information
+# q_xi_2_2_* // ability to conceptualize problems
+# q_xi_2_3_* // R&D
+# q_xi_2_4_* // communicate, popularize, disseminate
+# q_xi_2_5_* // other
+```
+
+# Organizational capacity
+
+## Weakness of political leadership
+
+```{r}
+var_vec = c("q_iii_28_1",
+            "q_iii_28_2",
+            "q_iii_28_3",
+            "q_iii_28_4",
+            "q_iii_28_5",
+            "q_iii_28_6",
+            "q_iii_28_7",
+            "q_iii_28_8",
+            "q_iii_28_96"
+)
+var_lab = c("Weakness of political leadership
+            ")
+label_vec = c("Vulnerability to climatic factors",
+              "Soil degradation and pressure on natural resources",
+              "Fragility and conflict",
+              "Limited agricultural education",
+              "Dependence on food aid",
+              "Problems of governance and corruption hamper the effectiveness of food and agricultural programs, and the equitable distribution of resources.",
+              "Persistent social inequalities, such as access to land and resources",
+              "Limited access to data and information",
+              "Other ( specify )"
+)
+
+df = EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(domain,var_vec) %>% 
+  dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No")) %>%
+  dplyr::mutate(dom_2=ifelse(dom_2==1,"Yes","No")) %>%
+  dplyr::mutate(dom_3=ifelse(dom_3==1,"Yes","No")) %>%
+  dplyr::mutate(dom_4=ifelse(dom_4==1,"Yes","No")) %>%
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>%
+  dplyr::mutate(across(var_vec, as.numeric))
+
+description = tibble(
+  name = var_vec,
+  label = label_vec
+)
+var_labels <- setNames(as.list(description$label), description$name)
+df <- df %>%
+  set_variable_labels(.labels = var_labels, .strict = FALSE)
+
+```
+
+
+
+```{r}
+
+tb_1 = df %>% dplyr::select(dom_1,var_vec
+                            
+) %>%  
+  tbl_summary(by = dom_1,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Nutrition, health, and food, security") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+## domain 2
+
+tb_2=df %>% dplyr::select(dom_2,var_vec
+                          
+) %>%  
+  tbl_summary(by = dom_2,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+tb_3=df %>% dplyr::select(dom_3,var_vec
+                          
+)  %>%  
+  tbl_summary(by = dom_3,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Gender equality, youth, and social inclusion") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+tb_4=df %>% dplyr::select(dom_4,var_vec
+                          
+)%>%  
+  tbl_summary(by = dom_4,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Climate adaptation and mitigation") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+tb_5=df %>% dplyr::select(dom_5,var_vec
+                          
+) %>%  
+  tbl_summary(by = dom_5,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Environmental health and biodiversity") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+
+```{r}
+df_1=tb_1$table_body[,c("var_label","stat_0","stat_2")]
+df_2=tb_2$table_body[,c("stat_2")]
+df_3=tb_3$table_body[,c("stat_2")]
+df_4=tb_4$table_body[,c("stat_2")]
+df_5=tb_5$table_body[,c("stat_2")]
+
+df_fc = cbind(df_1,
+              df_2,
+              df_3,
+              df_4,
+              df_5)
+
+names(df_fc)=c(var_lab,
+               "All",
+               "Nutrition, health, and food, security",
+               "Poverty reduction, livelihoods, and jobs",
+               "Gender equality, youth, and social inclusion",
+               "Climate adaptation and mitigation",
+               "Environmental health and biodiversity"
+)
+
+
+# Set Table header
+header <- str_squish(str_remove("Table 1.", "\n"))
+# Set Table footer
+footer <- str_squish(str_remove("", "\n"))
+# Set custom_tab() defaults
+customtab_defaults()
+ft = custom_tab(df_fc, header, footer)
+#FitFlextableToPage(ft)
+ft
+```
+
+\newpage
+
+## Weakness in strategic direction by manager
+
+```{r}
+var_vec = c("q_iii_33_1",
+            "q_iii_33_2",
+            "q_iii_33_3",
+            "q_iii_33_4",
+            "q_iii_33_5",
+            "q_iii_33_6",
+            "q_iii_33_96"
+)
+var_lab = c("Weakness in strategic direction by manager
+            ")
+label_vec = c("Lack of human and institutional capacity to design, implement and monitor food and agricultural programs",
+              "Dependence on food aid and international assistance to meet food challenges",
+              "Persistent social inequalities, such as access to land and resources, complicate the implementation of equitable initiatives for all groups in society.",
+              "Poor transport infrastructure and limited access to markets hamper marketing opportunities for farmers.",
+              "Security and fragility challenges disrupt food production and agricultural activities",
+              "Lack of reliable, up-to-date data hampers evidence-based planning and decision-making.",
+              "Other ( specify )"
+)
+
+df = EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(domain,var_vec) %>% 
+  dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No")) %>%
+  dplyr::mutate(dom_2=ifelse(dom_2==1,"Yes","No")) %>%
+  dplyr::mutate(dom_3=ifelse(dom_3==1,"Yes","No")) %>%
+  dplyr::mutate(dom_4=ifelse(dom_4==1,"Yes","No")) %>%
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>%
+  dplyr::mutate(across(var_vec, as.numeric))
+
+description = tibble(
+  name = var_vec,
+  label = label_vec
+)
+var_labels <- setNames(as.list(description$label), description$name)
+df <- df %>%
+  set_variable_labels(.labels = var_labels, .strict = FALSE)
+
+```
+
+
+```{r}
+
+tb_1 = df %>% dplyr::select(dom_1,var_vec
+                            
+) %>%  
+  tbl_summary(by = dom_1,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Nutrition, health, and food, security") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+## domain 2
+
+tb_2=df %>% dplyr::select(dom_2,var_vec
+                          
+) %>%  
+  tbl_summary(by = dom_2,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Poverty reduction, livelihoods, and jobs") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+
+tb_3=df %>% dplyr::select(dom_3,var_vec
+                          
+)  %>%  
+  tbl_summary(by = dom_3,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Gender equality, youth, and social inclusion") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+tb_4=df %>% dplyr::select(dom_4,var_vec
+                          
+)%>%  
+  tbl_summary(by = dom_4,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Climate adaptation and mitigation") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+tb_5=df %>% dplyr::select(dom_5,var_vec
+                          
+) %>%  
+  tbl_summary(by = dom_5,
+              type= (list=var_vec ~ "continuous"),
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "Environmental health and biodiversity") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+
+```{r}
+df_1=tb_1$table_body[,c("var_label","stat_0","stat_2")]
+df_2=tb_2$table_body[,c("stat_2")]
+df_3=tb_3$table_body[,c("stat_2")]
+df_4=tb_4$table_body[,c("stat_2")]
+df_5=tb_5$table_body[,c("stat_2")]
+
+df_fc = cbind(df_1,
+              df_2,
+              df_3,
+              df_4,
+              df_5)
+
+names(df_fc)=c(var_lab,
+               "All",
+               "Nutrition, health, and food, security",
+               "Poverty reduction, livelihoods, and jobs",
+               "Gender equality, youth, and social inclusion",
+               "Climate adaptation and mitigation",
+               "Environmental health and biodiversity"
+)
+
+
+# Set Table header
+header <- str_squish(str_remove("Table 1.", "\n"))
+# Set Table footer
+footer <- str_squish(str_remove("", "\n"))
+# Set custom_tab() defaults
+customtab_defaults()
+ft = custom_tab(df_fc, header, footer)
+#FitFlextableToPage(ft)
+ft
+```
+
+\newpage
+
+## Gaps/changes needed at the policy level
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+var_lab = c("Gaps/changes needed at the policy level")
+tb_gaps_dom_1=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_1,
+                                                               q_ii_9_1_1,
+                                                               q_ii_9_2_1,
+                                                               q_ii_9_3_1,
+                                                               q_ii_9_4_1,
+                                                               q_ii_9_5_1,
+                                                               q_ii_9_6_1,
+                                                               q_ii_9_7_1,
+                                                               # q_ii_9_8_1,
+                                                               # q_ii_9_9_1,
+                                                               # q_ii_9_10_1,
+                                                               q_ii_9_96_1
+) %>% 
+  dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_9"), as.numeric)) %>% 
+  apply_labels(q_ii_9_1_1 = "Lack of coordination",
+               q_ii_9_2_1 = "Unequal access",
+               q_ii_9_3_1 = "Food industry lobbying",
+               q_ii_9_4_1 = "Focus on production rather than nutrition",
+               q_ii_9_5_1 = "Pressure on natural resources",
+               q_ii_9_6_1 = "Lack of public awareness",
+               q_ii_9_7_1 = "Short-term vision",
+               # q_ii_9_8_1 = "Bureaucratic inefficiency",
+               # q_ii_9_9_1 = "Lack of financial resources",
+               # q_ii_9_10_1 = "Resistance to change",
+               q_ii_9_96_1 = "Other ( specify)"
+  ) %>%  
+  tbl_summary(by = dom_1, 
+              type= (list=c(q_ii_9_1_1,
+                            q_ii_9_2_1,
+                            q_ii_9_3_1,
+                            q_ii_9_4_1,
+                            q_ii_9_5_1,
+                            q_ii_9_6_1,
+                            q_ii_9_7_1,
+                            # q_ii_9_8_1,
+                            # q_ii_9_9_1,
+                            # q_ii_9_10_1,
+                            q_ii_9_96_1) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),#
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_gaps_dom_2=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_2,
+                                                               q_ii_9_1_2,
+                                                               q_ii_9_2_2,
+                                                               q_ii_9_3_2,
+                                                               q_ii_9_4_2,
+                                                               q_ii_9_5_2,
+                                                               q_ii_9_6_2,
+                                                               q_ii_9_7_2,
+                                                               # q_ii_9_8_2,
+                                                               # q_ii_9_9_2,
+                                                               # q_ii_9_10_2,
+                                                               q_ii_9_96_2
+) %>% 
+  dplyr::mutate(dom_2=ifelse(dom_2==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_9"), as.numeric)) %>% 
+  apply_labels(q_ii_9_1_2 = "Lack of coordination",
+               q_ii_9_2_2 = "Unequal access",
+               q_ii_9_3_2 = "Food industry lobbying",
+               q_ii_9_4_2 = "Focus on production rather than nutrition",
+               q_ii_9_5_2 = "Pressure on natural resources",
+               q_ii_9_6_2 = "Lack of public awareness",
+               q_ii_9_7_2 = "Short-term vision",
+               # q_ii_9_8_2 = "Bureaucratic inefficiency",
+               # q_ii_9_9_2 = "Lack of financial resources",
+               # q_ii_9_10_2 = "Resistance to change",
+               q_ii_9_96_2 = "Other ( specify)"
+  ) %>%  
+  tbl_summary(by = dom_2, 
+              type= (list=c(q_ii_9_1_2,
+                            q_ii_9_2_2,
+                            q_ii_9_3_2,
+                            q_ii_9_4_2,
+                            q_ii_9_5_2,
+                            q_ii_9_6_2,
+                            q_ii_9_7_2,
+                            # q_ii_9_8_2,
+                            # q_ii_9_9_2,
+                            # q_ii_9_10_2,
+                            q_ii_9_96_2) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_gaps_dom_3=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_3,
+                                                               q_ii_9_1_3,
+                                                               q_ii_9_2_3,
+                                                               q_ii_9_3_3,
+                                                               q_ii_9_4_3,
+                                                               q_ii_9_5_3,
+                                                               q_ii_9_6_3,
+                                                               q_ii_9_7_3,
+                                                               # q_ii_9_8_3,
+                                                               # q_ii_9_9_3,
+                                                               # q_ii_9_10_3,
+                                                               q_ii_9_96_3
+) %>% 
+  dplyr::mutate(dom_3=ifelse(dom_3==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_9"), as.numeric)) %>% 
+  apply_labels(q_ii_9_1_3 = "Lack of coordination",
+               q_ii_9_2_3 = "Unequal access",
+               q_ii_9_3_3 = "Food industry lobbying",
+               q_ii_9_4_3 = "Focus on production rather than nutrition",
+               q_ii_9_5_3 = "Pressure on natural resources",
+               q_ii_9_6_3 = "Lack of public awareness",
+               q_ii_9_7_3 = "Short-term vision",
+               # q_ii_9_8_3 = "Bureaucratic inefficiency",
+               # q_ii_9_9_3 = "Lack of financial resources",
+               # q_ii_9_10_3 = "Resistance to change",
+               q_ii_9_96_3 = "Other ( specify)"
+  ) %>%  
+  tbl_summary(by = dom_3, 
+              type= (list=c(q_ii_9_1_3,
+                            q_ii_9_2_3,
+                            q_ii_9_3_3,
+                            q_ii_9_4_3,
+                            q_ii_9_5_3,
+                            q_ii_9_6_3,
+                            q_ii_9_7_3,
+                            # q_ii_9_8_3,
+                            # q_ii_9_9_3,
+                            # q_ii_9_10_3,
+                            q_ii_9_96_3) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_gaps_dom_4=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_4,
+                                                               q_ii_9_1_4,
+                                                               q_ii_9_2_4,
+                                                               q_ii_9_3_4,
+                                                               q_ii_9_4_4,
+                                                               q_ii_9_5_4,
+                                                               q_ii_9_6_4,
+                                                               q_ii_9_7_4,
+                                                               # q_ii_9_8_4,
+                                                               # q_ii_9_9_4,
+                                                               # q_ii_9_10_4,
+                                                               q_ii_9_96_4
+) %>% 
+  dplyr::mutate(dom_4=ifelse(dom_4==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_9"), as.numeric)) %>% 
+  apply_labels(q_ii_9_1_4 = "Lack of coordination",
+               q_ii_9_2_4 = "Unequal access",
+               q_ii_9_3_4 = "Food industry lobbying",
+               q_ii_9_4_4 = "Focus on production rather than nutrition",
+               q_ii_9_5_4 = "Pressure on natural resources",
+               q_ii_9_6_4 = "Lack of public awareness",
+               q_ii_9_7_4 = "Short-term vision",
+               # q_ii_9_8_4 = "Bureaucratic inefficiency",
+               # q_ii_9_9_4 = "Lack of financial resources",
+               # q_ii_9_10_4 = "Resistance to change",
+               q_ii_9_96_4 = "Other ( specify)"
+  ) %>%  
+  tbl_summary(by = dom_4, 
+              type= (list=c(q_ii_9_1_4,
+                            q_ii_9_2_4,
+                            q_ii_9_3_4,
+                            q_ii_9_4_4,
+                            q_ii_9_5_4,
+                            q_ii_9_6_4,
+                            q_ii_9_7_4,
+                            # q_ii_9_8_4,
+                            # q_ii_9_9_4,
+                            # q_ii_9_10_4,
+                            q_ii_9_96_4) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+
+
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_gaps_dom_5=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_5,
+                                                               q_ii_9_1_5,
+                                                               q_ii_9_2_5,
+                                                               q_ii_9_3_5,
+                                                               q_ii_9_4_5,
+                                                               q_ii_9_5_5,
+                                                               q_ii_9_6_5,
+                                                               q_ii_9_7_5,
+                                                               # q_ii_9_8_5,
+                                                               # q_ii_9_9_5,
+                                                               # q_ii_9_10_5,
+                                                               q_ii_9_96_5
+) %>% 
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_9"), as.numeric)) %>% 
+  apply_labels(q_ii_9_1_5 = "Lack of coordination",
+               q_ii_9_2_5 = "Unequal access",
+               q_ii_9_3_5 = "Food industry lobbying",
+               q_ii_9_4_5 = "Focus on production rather than nutrition",
+               q_ii_9_5_5 = "Pressure on natural resources",
+               q_ii_9_6_5 = "Lack of public awareness",
+               q_ii_9_7_5 = "Short-term vision",
+               # q_ii_9_8_5 = "Bureaucratic inefficiency",
+               # q_ii_9_9_5 = "Lack of financial resources",
+               # q_ii_9_10_5 = "Resistance to change",
+               q_ii_9_96_5 = "Other ( specify)"
+  ) %>%  
+  tbl_summary(by = dom_5, 
+              type= (list=c(q_ii_9_1_5,
+                            q_ii_9_2_5,
+                            q_ii_9_3_5,
+                            q_ii_9_4_5,
+                            q_ii_9_5_5,
+                            q_ii_9_6_5,
+                            q_ii_9_7_5,
+                            # q_ii_9_8_5,
+                            # q_ii_9_9_5,
+                            # q_ii_9_10_5,
+                            q_ii_9_96_5) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+df_gaps_dom_1=tb_gaps_dom_1$table_body[,c("var_label","stat_0","stat_2")]
+df_gaps_dom_2=tb_gaps_dom_2$table_body[,c("stat_2")]
+df_gaps_dom_3=tb_gaps_dom_3$table_body[,c("stat_2")]
+df_gaps_dom_4=tb_gaps_dom_4$table_body[,c("stat_2")]
+df_gaps_dom_5=tb_gaps_dom_5$table_body[,c("stat_2")]
+
+df_fc = cbind(df_gaps_dom_1,
+              df_gaps_dom_2,
+              df_gaps_dom_3,
+              df_gaps_dom_4,
+              df_gaps_dom_5)
+
+
+names(df_fc)=c(var_lab,
+               "All",
+               "Nutrition, health, and food, security",
+               "Poverty reduction, livelihoods, and jobs",
+               "Gender equality, youth, and social inclusion",
+               "Climate adaptation and mitigation",
+               "Environmental health and biodiversity"
+)
+
+
+# Set Table header
+header <- str_squish(str_remove("Table 1.", "\n"))
+# Set Table footer
+footer <- str_squish(str_remove("", "\n"))
+# Set custom_tab() defaults
+customtab_defaults()
+ft = custom_tab(df_fc, header, footer)
+#FitFlextableToPage(ft)
+ft
+```
+
+
+
+\newpage
+
+## Strengthes of specific policies/programs
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_strengths_dom_1=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_1,
+                                                                    q_ii_8_1_1,
+                                                                    q_ii_8_2_1,
+                                                                    q_ii_8_3_1,
+                                                                    q_ii_8_4_1,
+                                                                    q_ii_8_5_1,
+                                                                    q_ii_8_6_1,
+                                                                    # q_ii_8_7_1,
+                                                                    # q_ii_8_8_1,
+                                                                    # q_ii_8_9_1,
+                                                                    q_ii_8_96_1
+) %>% 
+  dplyr::mutate(dom_1=ifelse(dom_1==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_8"), as.numeric)) %>% 
+  apply_labels(q_ii_8_1_1 = "Coordination and collaboration",
+               q_ii_8_2_1 = "Global vision",
+               q_ii_8_3_1 = "Strategic direction",
+               q_ii_8_4_1 = "Regulations and policies",
+               q_ii_8_5_1 = "Public investment",
+               q_ii_8_6_1 = "Mobilizing civil society",
+               # q_ii_8_7_1 = "International food diplomacy",
+               # q_ii_8_8_1 = "Education and awareness-raising",
+               # q_ii_8_9_1 = "Innovation and adaptation",
+               q_ii_8_96_1 = "Other ( specify )"
+  ) %>%  
+  tbl_summary(by = dom_1, 
+              type= (list=c(q_ii_8_1_1,
+                            q_ii_8_2_1,
+                            q_ii_8_3_1,
+                            q_ii_8_4_1,
+                            q_ii_8_5_1,
+                            q_ii_8_6_1,
+                            # q_ii_8_7_1,
+                            # q_ii_8_8_1,
+                            # q_ii_8_9_1,
+                            q_ii_8_96_1) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_strengths_dom_2=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_2,
+                                                                    q_ii_8_1_2,
+                                                                    q_ii_8_2_2,
+                                                                    q_ii_8_3_2,
+                                                                    q_ii_8_4_2,
+                                                                    q_ii_8_5_2,
+                                                                    q_ii_8_6_2,
+                                                                    # q_ii_8_7_2,
+                                                                    # q_ii_8_8_2,
+                                                                    # q_ii_8_9_2,
+                                                                    q_ii_8_96_2
+) %>% 
+  dplyr::mutate(dom_2=ifelse(dom_2==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_8"), as.numeric)) %>% 
+  apply_labels(q_ii_8_1_2 = "Coordination and collaboration",
+               q_ii_8_2_2 = "Global vision",
+               q_ii_8_3_2 = "Strategic direction",
+               q_ii_8_4_2 = "Regulations and policies",
+               q_ii_8_5_2 = "Public investment",
+               q_ii_8_6_2 = "Mobilizing civil society",
+               # q_ii_8_7_2 = "International food diplomacy",
+               # q_ii_8_8_2 = "Education and awareness-raising",
+               # q_ii_8_9_2 = "Innovation and adaptation",
+               q_ii_8_96_2 = "Other ( specify )"
+  ) %>%  
+  tbl_summary(by = dom_2, 
+              type= (list=c(q_ii_8_1_2,
+                            q_ii_8_2_2,
+                            q_ii_8_3_2,
+                            q_ii_8_4_2,
+                            q_ii_8_5_2,
+                            q_ii_8_6_2,
+                            # q_ii_8_7_2,
+                            # q_ii_8_8_2,
+                            # q_ii_8_9_2,
+                            q_ii_8_96_2) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_strengths_dom_3=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_3,
+                                                                    q_ii_8_1_3,
+                                                                    q_ii_8_2_3,
+                                                                    q_ii_8_3_3,
+                                                                    q_ii_8_4_3,
+                                                                    q_ii_8_5_3,
+                                                                    q_ii_8_6_3,
+                                                                    # q_ii_8_7_3,
+                                                                    # q_ii_8_8_3,
+                                                                    # q_ii_8_9_3,
+                                                                    q_ii_8_96_3
+) %>% 
+  dplyr::mutate(dom_3=ifelse(dom_3==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_8"), as.numeric)) %>% 
+  apply_labels(q_ii_8_1_3 = "Coordination and collaboration",
+               q_ii_8_2_3 = "Global vision",
+               q_ii_8_3_3 = "Strategic direction",
+               q_ii_8_4_3 = "Regulations and policies",
+               q_ii_8_5_3 = "Public investment",
+               q_ii_8_6_3 = "Mobilizing civil society",
+               # q_ii_8_7_3 = "International food diplomacy",
+               # q_ii_8_8_3 = "Education and awareness-raising",
+               # q_ii_8_9_3 = "Innovation and adaptation",
+               q_ii_8_96_3 = "Other ( specify )"
+  ) %>%  
+  tbl_summary(by = dom_3, 
+              type= (list=c(q_ii_8_1_3,
+                            q_ii_8_2_3,
+                            q_ii_8_3_3,
+                            q_ii_8_4_3,
+                            q_ii_8_5_3,
+                            q_ii_8_6_3,
+                            # q_ii_8_7_3,
+                            # q_ii_8_8_3,
+                            # q_ii_8_9_3,
+                            q_ii_8_96_3) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_strengths_dom_4=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_4,
+                                                                    q_ii_8_1_4,
+                                                                    q_ii_8_2_4,
+                                                                    q_ii_8_3_4,
+                                                                    q_ii_8_4_4,
+                                                                    q_ii_8_5_4,
+                                                                    q_ii_8_6_4,
+                                                                    # q_ii_8_7_4,
+                                                                    # q_ii_8_8_4,
+                                                                    # q_ii_8_9_4,
+                                                                    q_ii_8_96_4
+) %>% 
+  dplyr::mutate(dom_4=ifelse(dom_4==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_8"), as.numeric)) %>% 
+  apply_labels(q_ii_8_1_4 = "Coordination and collaboration",
+               q_ii_8_2_4 = "Global vision",
+               q_ii_8_3_4 = "Strategic direction",
+               q_ii_8_4_4 = "Regulations and policies",
+               q_ii_8_5_4 = "Public investment",
+               q_ii_8_6_4 = "Mobilizing civil society",
+               # q_ii_8_7_4 = "International food diplomacy",
+               # q_ii_8_8_4 = "Education and awareness-raising",
+               # q_ii_8_9_4 = "Innovation and adaptation",
+               q_ii_8_96_4 = "Other ( specify )"
+  ) %>%  
+  tbl_summary(by = dom_4, 
+              type= (list=c(q_ii_8_1_4,
+                            q_ii_8_2_4,
+                            q_ii_8_3_4,
+                            q_ii_8_4_4,
+                            q_ii_8_5_4,
+                            q_ii_8_6_4,
+                            # q_ii_8_7_4,
+                            # q_ii_8_8_4,
+                            # q_ii_8_9_4,
+                            q_ii_8_96_4) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+```{r}
+set_gtsummary_theme(theme_gtsummary_compact())
+
+tb_strengths_dom_5=EVALUATION_DES_CAPACITES_Hema  %>% dplyr::select(dom_5,
+                                                                    q_ii_8_1_5,
+                                                                    q_ii_8_2_5,
+                                                                    q_ii_8_3_5,
+                                                                    q_ii_8_4_5,
+                                                                    q_ii_8_5_5,
+                                                                    q_ii_8_6_5,
+                                                                    # q_ii_8_7_5,
+                                                                    # q_ii_8_8_5,
+                                                                    # q_ii_8_9_5,
+                                                                    q_ii_8_96_5
+) %>% 
+  dplyr::mutate(dom_5=ifelse(dom_5==1,"Yes","No")) %>% dplyr::mutate(across(starts_with("q_ii_8"), as.numeric)) %>% 
+  apply_labels(q_ii_8_1_5 = "Coordination and collaboration",
+               q_ii_8_2_5 = "Global vision",
+               q_ii_8_3_5 = "Strategic direction",
+               q_ii_8_4_5 = "Regulations and policies",
+               q_ii_8_5_5 = "Public investment",
+               q_ii_8_6_5 = "Mobilizing civil society",
+               # q_ii_8_7_5 = "International food diplomacy",
+               # q_ii_8_8_5 = "Education and awareness-raising",
+               # q_ii_8_9_5 = "Innovation and adaptation",
+               q_ii_8_96_5 = "Other ( specify )"
+  ) %>%  
+  tbl_summary(by = dom_5, 
+              type= (list=c(q_ii_8_1_5,
+                            q_ii_8_2_5,
+                            q_ii_8_3_5,
+                            q_ii_8_4_5,
+                            q_ii_8_5_5,
+                            q_ii_8_6_5,
+                            # q_ii_8_7_5,
+                            # q_ii_8_8_5,
+                            # q_ii_8_9_5,
+                            q_ii_8_96_5) ~ "continuous"),
+              
+              statistic = list(all_continuous() ~ "{mean}"),
+              digits = everything() ~ c(2,0), missing = "no") %>%
+  modify_header(label = "") %>%
+  add_overall() %>%
+  add_n() %>%  
+  add_stat(fns = everything() ~ add_by_n) %>%
+  modify_header(starts_with("add_n_stat") ~ "**N**") %>%
+  modify_table_body(~ .x %>%
+                      dplyr::relocate(add_n_stat_1, .before = stat_1) %>%
+                      dplyr::relocate(add_n_stat_2, .before = stat_2)) %>% italicize_labels()
+
+```
+
+```{r}
+df_strengths_dom_1=tb_strengths_dom_1$table_body[,c("var_label","stat_0","stat_2")]
+df_strengths_dom_2=tb_strengths_dom_2$table_body[,c("stat_2")]
+df_strengths_dom_3=tb_strengths_dom_3$table_body[,c("stat_2")]
+df_strengths_dom_4=tb_strengths_dom_4$table_body[,c("stat_2")]
+df_strengths_dom_5=tb_strengths_dom_5$table_body[,c("stat_2")]
+
+df_fc = cbind(df_strengths_dom_1,
+              df_strengths_dom_2,
+              df_strengths_dom_3,
+              df_strengths_dom_4,
+              df_strengths_dom_5)
+
+names(df_fc)=c("Strengths of these specific policies/programs/strategies",
+               "All",
+               "Nutrition, health, and food, security",
+               "Poverty reduction, livelihoods, and jobs",
+               "Gender equality, youth, and social inclusion",
+               "Climate adaptation and mitigation",
+               "Environmental health and biodiversity"
+)
+
+# Set Table header
+header <- str_squish(str_remove("Table 1.", "\n"))
+# Set Table footer
+footer <- str_squish(str_remove("", "\n"))
+# Set custom_tab() defaults
+customtab_defaults()
+ft = custom_tab(df_fc, header, footer)
+#FitFlextableToPage(ft)
+ft
+```
+
+
+
+
